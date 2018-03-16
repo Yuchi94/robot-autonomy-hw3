@@ -33,7 +33,13 @@ class HerbEnvironment(object):
                                    [ 0.02023372, -0.9431516 , -0.33174637,  1.61502194],
                                    [ 0.        ,  0.        ,  0.        ,  1.        ]])
         self.robot.GetEnv().GetViewer().SetCamera(camera_pose)
-    
+
+    def checkCollision(self, coord):
+        config = self.discrete_env.GridCoordToConfiguration(coord)
+
+        self.robot.SetActiveDOFValues(config)
+        return self.robot.GetEnv().CheckCollision(self.robot, self.table)
+
     def GetSuccessors(self, node_id):
 
         successors = []

@@ -19,7 +19,6 @@ class DiscreteEnvironment(object):
         for idx in range(self.dimension):
             self.num_cells[idx] = np.ceil((upper_limits[idx] - lower_limits[idx])/resolution)
 
-
     def ConfigurationToNodeId(self, config):
         grid = self.ConfigurationToGridCoord(config)
         return self.GridCoordToNodeId(grid)
@@ -29,10 +28,10 @@ class DiscreteEnvironment(object):
         return self.GridCoordToConfiguration(grid)
 
     def ConfigurationToGridCoord(self, config):
-        return np.array(config) // self.resolution
+        return ((np.array(config) - self.lower_limits) // self.resolution).astype(np.uint)
 
     def GridCoordToConfiguration(self, coord):
-        return (np.array(coord) + 0.5) * self.resolution
+        return np.expand_dims((np.array(coord) + 0.5) * self.resolution + self.lower_limits, axis = 0)
 
     def GridCoordToNodeId(self,coord):
         return np.sum(np.cumprod([1] + self.num_cells[:-1]) * coord)

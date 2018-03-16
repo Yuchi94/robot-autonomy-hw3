@@ -12,23 +12,36 @@ class SimpleEnvironment(object):
         self.discrete_env = DiscreteEnvironment(resolution, self.lower_limits, self.upper_limits)
 
         # add an obstacle
-        table = self.robot.GetEnv().ReadKinBodyXMLFile('models/objects/table.kinbody.xml')
-        self.robot.GetEnv().Add(table)
+        self.table = self.robot.GetEnv().ReadKinBodyXMLFile('models/objects/table.kinbody.xml')
+        self.robot.GetEnv().Add(self.table)
 
         table_pose = np.array([[ 0, 0, -1, 1.5], 
                                   [-1, 0,  0, 0], 
                                   [ 0, 1,  0, 0], 
                                   [ 0, 0,  0, 1]])
-        table.SetTransform(table_pose)
+        self.table.SetTransform(table_pose)
 
-    def GetSuccessors(self, node_id):
+    def checkCollision(self, coord):
+        pose = self.discrete_env.GridCoordToConfiguration(coord)
+        # print(pose)
 
-        grid_coord = self.discrete_env.NodeIdToGridCoord(node_id)
+        T = np.array([ [ 1, 0,  0, pose[0,0]], 
+                          [ 0, 1,  0, pose[0,1]], 
+                          [ 0, 0,  1, 0], 
+                          [ 0, 0,  0, 1]])
+        self.robot.SetTransform(T)
+        return self.robot.GetEnv().CheckCollision(self.robot, self.table)
+
+    def GetSuccessors(self, grid_coord):
+        """
+        Returns neighbors of grid_coord. 
+        """
         offset = np.zeros(grid_coord.shape)
         offset[0] = 1
 
-        return np.array([self.discrete_env.GridCoordToNodeId(grid_coord + off) for 
-            off in [-p, p] for p in itertools.permutations(offset)])
+        # return np.array([grid_coord + off for off in itertools.permutations(offset)]).astype(np.uint)
+        return np.concatenate(([grid_coord + off for off in itertools.permutations(offset)],
+            [grid_coord - off for off in itertools.permutations(offset)]), axis = 0).astype(np.uint)
 
     def ComputeDistance(self, start_id, end_id):
 
@@ -71,5 +84,8 @@ class SimpleEnvironment(object):
                 [sconfig[1], econfig[1]],
                 'k.-', linewidth=2.5)
         pl.draw()
+
+    def getStatusTable(self):
+        return np.full(self.discrete_env.num_cells, False)
 
         
