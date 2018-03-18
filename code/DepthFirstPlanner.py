@@ -9,27 +9,16 @@ class DepthFirstPlanner(object):
         self.nodes = dict()
 
     def Plan(self, start_config, goal_config):
-                
-        # TODO: Here you will implement the depth first planner
-        #  The return path should be a numpy array
-        #  of dimension k x n where k is the number of waypoints
-        #  and n is the dimension of the robots configuration space
-        # print(start_config)
-
-        status = self.planning_env.getStatusTable()
         start_coord = self.planning_env.discrete_env.ConfigurationToGridCoord(start_config)
-
         goal_coord = self.planning_env.discrete_env.ConfigurationToGridCoord(goal_config)
         neighbors = self.planning_env.GetSuccessors(start_coord)
 
         queue = deque()
         parents = {}
         parents[tuple(start_coord)] = None
-        status[np.split(start_coord, start_coord.shape[0])] = True
 
 
         for n in neighbors:
-            status[np.split(n, n.shape[0])] = True
             queue.append(n)
             parents[tuple(n)] = start_coord
 
@@ -45,7 +34,7 @@ class DepthFirstPlanner(object):
                     continue
 
                 #Explored
-                if status[np.split(n, n.shape[0])] == True:
+                if tuple(n) in parents:
                     continue
 
                 #Collision
@@ -57,10 +46,8 @@ class DepthFirstPlanner(object):
                     parents[tuple(n)] = node
                     return self.createPath(start_config, goal_config, parents, n)
                     
-                #Mark square as visited
-                status[np.split(n, n.shape[0])] = True
+                #Add parents
                 queue.append(n)
-
                 parents[tuple(n)] = node
         
         print("Should never reach here")

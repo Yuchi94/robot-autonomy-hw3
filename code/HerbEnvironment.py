@@ -1,5 +1,6 @@
-import numpy
+import numpy as np
 from DiscreteEnvironment import DiscreteEnvironment
+import itertools
 
 class HerbEnvironment(object):
     
@@ -17,18 +18,18 @@ class HerbEnvironment(object):
             self.discrete_env.num_cells[idx] -= 1
 
         # add a table and move the robot into place
-        table = self.robot.GetEnv().ReadKinBodyXMLFile('models/objects/table.kinbody.xml')
+        self.table = self.robot.GetEnv().ReadKinBodyXMLFile('models/objects/table.kinbody.xml')
         
-        self.robot.GetEnv().Add(table)
+        self.robot.GetEnv().Add(self.table)
 
-        table_pose = numpy.array([[ 0, 0, -1, 0.7], 
+        table_pose = np.array([[ 0, 0, -1, 0.7], 
                                   [-1, 0,  0, 0], 
                                   [ 0, 1,  0, 0], 
                                   [ 0, 0,  0, 1]])
-        table.SetTransform(table_pose)
+        self.table.SetTransform(table_pose)
         
         # set the camera
-        camera_pose = numpy.array([[ 0.3259757 ,  0.31990565, -0.88960678,  2.84039211],
+        camera_pose = np.array([[ 0.3259757 ,  0.31990565, -0.88960678,  2.84039211],
                                    [ 0.94516159, -0.0901412 ,  0.31391738, -0.87847549],
                                    [ 0.02023372, -0.9431516 , -0.33174637,  1.61502194],
                                    [ 0.        ,  0.        ,  0.        ,  1.        ]])
@@ -37,37 +38,29 @@ class HerbEnvironment(object):
     def checkCollision(self, coord):
         config = self.discrete_env.GridCoordToConfiguration(coord)
 
-        self.robot.SetActiveDOFValues(config)
+        self.robot.SetActiveDOFValues(config.squeeze().tolist())
         return self.robot.GetEnv().CheckCollision(self.robot, self.table)
 
-    def GetSuccessors(self, node_id):
+    def GetSuccessors(self, grid_coord):
+        """
+        Returns neighbors of grid_coord. 
+        """
+        offset = np.zeros(grid_coord.shape)
+        offset[0] = 1
 
-        successors = []
-
-        # TODO: Here you will implement a function that looks
-        #  up the configuration associated with the particular node_id
-        #  and return a list of node_ids that represent the neighboring
-        #  nodes
-        
-        return successors
+        # return np.array([grid_coord + off for off in itertools.permutations(offset)]).astype(np.uint)
+        return np.concatenate(([grid_coord + off for off in itertools.permutations(offset)],
+            [grid_coord - off for off in itertools.permutations(offset)]), axis = 0).astype(np.uint)
 
     def ComputeDistance(self, start_id, end_id):
 
-        dist = 0
-
-        # TODO: Here you will implement a function that 
-        # computes the distance between the configurations given
-        # by the two node ids
-       
-        return dist
+        return numpy.linalg.norm(self.discrete_env.NodeIdToConfiguration(start_id)
+            -self.discrete_env.NodeIdToConfiguration(end_id))
 
     def ComputeHeuristicCost(self, start_id, goal_id):
-        
-        cost = 0
+        #Use distance as heuristic?
+        return numpy.linalg.norm(self.discrete_env.NodeIdToConfiguration(start_id)
+            -self.discrete_env.NodeIdToConfiguration(end_id))   
 
-        # TODO: Here you will implement a function that 
-        # computes the heuristic cost between the configurations
-        # given by the two node ids
-        
-        return cost
-
+    def getStatusTable(self):
+        return np.full(self.discrete_env.num_cells, False)
