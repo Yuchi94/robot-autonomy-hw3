@@ -35,6 +35,10 @@ class HerbEnvironment(object):
                                    [ 0.        ,  0.        ,  0.        ,  1.        ]])
         self.robot.GetEnv().GetViewer().SetCamera(camera_pose)
 
+        offset = np.zeros(len(self.discrete_env.num_cells))
+        offset[0] = 1
+        self.offsets = set(itertools.permutations(offset))
+
     def checkCollision(self, coord):
         config = self.discrete_env.GridCoordToConfiguration(coord)
 
@@ -45,22 +49,16 @@ class HerbEnvironment(object):
         """
         Returns neighbors of grid_coord. 
         """
-        offset = np.zeros(grid_coord.shape)
-        offset[0] = 1
+        return np.concatenate(([grid_coord + off for off in self.offsets],
+            [grid_coord - off for off in self.offsets]), axis = 0).astype(np.uint)
 
-        # return np.array([grid_coord + off for off in itertools.permutations(offset)]).astype(np.uint)
-        return np.concatenate(([grid_coord + off for off in itertools.permutations(offset)],
-            [grid_coord - off for off in itertools.permutations(offset)]), axis = 0).astype(np.uint)
+    def ComputeDistance(self, start_coord, end_coord,):
 
-    def ComputeDistance(self, start_id, end_id):
+        return np.linalg.norm(start_coord - end_coord)
 
-        return numpy.linalg.norm(self.discrete_env.NodeIdToConfiguration(start_id)
-            -self.discrete_env.NodeIdToConfiguration(end_id))
-
-    def ComputeHeuristicCost(self, start_id, goal_id):
+    def ComputeHeuristicCost(self, start_coord, end_coord):
         #Use distance as heuristic?
-        return numpy.linalg.norm(self.discrete_env.NodeIdToConfiguration(start_id)
-            -self.discrete_env.NodeIdToConfiguration(end_id))   
+        return np.linalg.norm(start_coord - end_coord)   
 
     def getStatusTable(self):
         return np.full(self.discrete_env.num_cells, False)

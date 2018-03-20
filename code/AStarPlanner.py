@@ -1,3 +1,8 @@
+import numpy as np
+from collections import deque
+from itertools import count
+from heapq import *
+np.set_printoptions(threshold=np.inf)
 
 class AStarPlanner(object):
     
@@ -9,14 +14,62 @@ class AStarPlanner(object):
 
     def Plan(self, start_config, goal_config):
 
-        plan = []
-        
-        # TODO: Here you will implement the AStar planner
-        #  The return path should be a numpy array
-        #  of dimension k x n where k is the number of waypoints
-        #  and n is the dimension of the robots configuration space
-                
-        plan.append(start_config)
-        plan.append(goal_config)
+        start_coord = self.planning_env.discrete_env.ConfigurationToGridCoord(start_config)
+        goal_coord = self.planning_env.discrete_env.ConfigurationToGridCoord(goal_config)
+        neighbors = self.planning_env.GetSuccessors(start_coord)
 
-        return plan
+        h = [] #Use a heap
+        parents = {}
+        parents[tuple(start_coord)] = None
+        tb = count()
+
+        for n in neighbors:
+            heappush(h, (1 + self.planning_env.ComputeHeuristicCost(n, goal_coord), 
+                        1, next(tb), n)) #Total cost, current cost, tiebreaker num, coord
+            parents[tuple(n)] = start_coord
+
+        while True:
+            #pop min element from heap
+            node = heappop(h)
+
+            #Add neighbors
+            neighbors = self.planning_env.GetSuccessors(node[3])
+
+            for n in neighbors:
+                #OOB
+                if (n < 1).any() or (n + 1 >= self.planning_env.discrete_env.num_cells).any():
+                    continue
+
+                #Explored
+                if tuple(n) in parents:
+                    continue
+
+                #Collision
+                if self.planning_env.checkCollision(n):
+                    continue
+
+                #Reached the end
+                if (n == goal_coord).all():
+                    parents[tuple(n)] = node[3]
+                    return self.createPath(start_config, goal_config, parents, n)
+                    
+                #Add parents
+                heappush(h, (node[1] + self.planning_env.ComputeDistance(node[3], n) 
+                    + self.planning_env.ComputeHeuristicCost(n, goal_coord), 
+                    node[1] + self.planning_env.ComputeDistance(node[3], n), next(tb), n))
+                parents[tuple(n)] = node[3]
+        
+        print("Should never reach here")
+
+    def createPath(self, start, goal, parents, coord):
+        path = []
+        path.append(np.expand_dims(goal, axis = 0))
+
+        while True:
+            path.append(self.planning_env.discrete_env.GridCoordToConfiguration(coord))
+            coord = parents[tuple(coord)]
+            if coord is None:
+                break
+
+        path.append(np.expand_dims(start, axis = 0))
+        return np.concatenate(path[::-1], axis = 0)
