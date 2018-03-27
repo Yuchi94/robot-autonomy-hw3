@@ -17,6 +17,8 @@ class BreadthFirstPlanner(object):
         parents = {}
         parents[tuple(start_coord)] = None
 
+        if self.visualize:
+            self.planning_env.InitializePlot(goal_config)
 
         for n in neighbors:
             queue.append(n)
@@ -40,6 +42,11 @@ class BreadthFirstPlanner(object):
                 #Collision
                 if self.planning_env.checkCollision(n):
                     continue
+
+                #visualize
+                if self.visualize:
+                    self.planning_env.PlotEdge(np.squeeze(self.planning_env.discrete_env.GridCoordToConfiguration(node)).copy(), 
+                        np.squeeze(self.planning_env.discrete_env.GridCoordToConfiguration(n)).copy())
 
                 #Reached the end
                 if (n == goal_coord).all():
