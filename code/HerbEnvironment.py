@@ -1,6 +1,8 @@
 import numpy as np
 from DiscreteEnvironment import DiscreteEnvironment
 import itertools
+from time import sleep
+import sys
 
 class HerbEnvironment(object):
     
@@ -40,10 +42,17 @@ class HerbEnvironment(object):
         self.offsets = set(itertools.permutations(offset))
 
     def checkCollision(self, coord):
+        robot_saver = self.robot.CreateRobotStateSaver(
+              self.robot.SaveParameters.ActiveDOF
+            | self.robot.SaveParameters.ActiveManipulator
+            | self.robot.SaveParameters.LinkTransformation)
+        limits = self.robot.GetActiveDOFLimits()
         config = self.discrete_env.GridCoordToConfiguration(coord)
+        env = self.robot.GetEnv()
 
-        self.robot.SetActiveDOFValues(config.squeeze().tolist())
-        return self.robot.GetEnv().CheckCollision(self.robot, self.table)
+        with robot_saver, env:
+            self.robot.SetActiveDOFValues(config.squeeze().tolist())
+            return env.CheckCollision(self.robot) or (limits[0] > config).any() or (limits[1] < config).any()
 
     def GetSuccessors(self, grid_coord):
         """
@@ -58,7 +67,11 @@ class HerbEnvironment(object):
 
     def ComputeHeuristicCost(self, start_coord, end_coord):
         #Use distance as heuristic?
-        return np.linalg.norm(start_coord - end_coord)   
+        return 2*np.linalg.norm(start_coord - end_coord)   
 
     def getStatusTable(self):
         return np.full(self.discrete_env.num_cells, False)
+
+    def setDOF(self, values):
+        self.robot.SetActiveDOFValues(values.squeeze().tolist())
+        sleep(0.1)

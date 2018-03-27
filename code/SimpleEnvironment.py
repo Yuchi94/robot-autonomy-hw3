@@ -2,6 +2,7 @@ import numpy as np
 import pylab as pl
 import itertools
 from DiscreteEnvironment import DiscreteEnvironment
+from time import sleep
 
 class SimpleEnvironment(object):
     
@@ -35,7 +36,7 @@ class SimpleEnvironment(object):
                           [ 0, 0,  1, 0], 
                           [ 0, 0,  0, 1]])
         self.robot.SetTransform(T)
-        return self.robot.GetEnv().CheckCollision(self.robot, self.table)
+        return self.robot.GetEnv().CheckCollision(self.table)
 
     def GetSuccessors(self, grid_coord):
         """
@@ -87,5 +88,13 @@ class SimpleEnvironment(object):
 
     def getStatusTable(self):
         return np.full(self.discrete_env.num_cells, False)
+
+    def setDOF(self, values):
+        T = np.array([ [ 1, 0,  0, values[0]], 
+                          [ 0, 1,  0, values[1]], 
+                          [ 0, 0,  1, 0], 
+                          [ 0, 0,  0, 1]])
+        self.robot.SetTransform(T)
+        sleep(0.1)
 
         

@@ -37,7 +37,7 @@ class AStarPlanner(object):
 
             for n in neighbors:
                 #OOB
-                if (n < 1).any() or (n + 1 >= self.planning_env.discrete_env.num_cells).any():
+                if (n < 0).any() or (n >= self.planning_env.discrete_env.num_cells).any():
                     continue
 
                 #Explored
