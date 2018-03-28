@@ -70,6 +70,8 @@ class AStarPlanner(object):
         print("Should never reach here")
 
     def createPath(self, start, goal, parents, coord):
+        print("number of explored nodes: " + str(len(parents)))
+
         path = []
         path.append(np.expand_dims(goal, axis = 0))
 

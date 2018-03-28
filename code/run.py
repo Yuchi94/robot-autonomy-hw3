@@ -12,6 +12,8 @@ from DepthFirstPlanner import DepthFirstPlanner
 from BreadthFirstPlanner import BreadthFirstPlanner
 from HeuristicRRTPlanner import HeuristicRRTPlanner
 
+import numpy as np
+
 def main(robot, planning_env, planner):
 
     raw_input('Press any key to begin planning')
@@ -22,11 +24,31 @@ def main(robot, planning_env, planner):
     else:
         goal_config = numpy.array([3.0, 0.0])
 
+    start_time = time.time()
     plan = planner.Plan(start_config, goal_config)
+    end_time = time.time()
+    print("elapsed time: " + str(end_time - start_time))
+
+    prev_node = plan[0]
+    path_length = 0
+    for n in plan:
+        path_length += np.linalg.norm(prev_node - n)
+        prev_node = n.copy()
+
+    print("path length: " + str(path_length))
+
     traj = robot.ConvertPlanToTrajectory(plan)
 
     raw_input('Press any key to execute trajectory')
-    robot.ExecuteTrajectory(traj)
+    # for p in plan:
+    #     planning_env.setDOF(p)
+
+    robot_saver = planning_env.robot.CreateRobotStateSaver(
+      planning_env.robot.SaveParameters.ActiveDOF
+    | planning_env.robot.SaveParameters.ActiveManipulator
+    | planning_env.robot.SaveParameters.LinkTransformation)
+    with robot_saver:  
+        robot.ExecuteTrajectory(traj)
 
 if __name__ == "__main__":
     

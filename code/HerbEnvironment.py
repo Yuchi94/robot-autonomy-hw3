@@ -61,13 +61,13 @@ class HerbEnvironment(object):
         return np.concatenate(([grid_coord + off for off in self.offsets],
             [grid_coord - off for off in self.offsets]), axis = 0).astype(np.uint)
 
-    def ComputeDistance(self, start_coord, end_coord,):
+    def ComputeDistance(self, start_coord, end_coord):
 
         return np.linalg.norm(start_coord - end_coord)
 
     def ComputeHeuristicCost(self, start_coord, end_coord):
         #Use distance as heuristic?
-        return 2*np.linalg.norm(start_coord - end_coord)   
+        return np.linalg.norm(start_coord - end_coord)   
 
     def getStatusTable(self):
         return np.full(self.discrete_env.num_cells, False)

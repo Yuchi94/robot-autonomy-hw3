@@ -48,11 +48,11 @@ class SimpleEnvironment(object):
 
     def ComputeDistance(self, start_coord, end_coord,):
 
-        return np.linalg.norm(start_coord - end_coord)
+        return np.linalg.norm(self.discrete_env.GridCoordToConfiguration(start_coord) - self.discrete_env.GridCoordToConfiguration(end_coord))    
 
     def ComputeHeuristicCost(self, start_coord, end_coord):
         #Use distance as heuristic?
-        return np.linalg.norm(start_coord - end_coord)    
+        return np.linalg.norm(self.discrete_env.GridCoordToConfiguration(start_coord) - self.discrete_env.GridCoordToConfiguration(end_coord))    
 
     def InitializePlot(self, goal_config):
         self.fig = pl.figure()
