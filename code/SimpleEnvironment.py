@@ -26,6 +26,7 @@ class SimpleEnvironment(object):
         offset[0] = 1
 
         self.offsets = set(itertools.permutations(offset))
+        self.draw_counter = 0
 
     def checkCollision(self, coord):
         pose = self.discrete_env.GridCoordToConfiguration(coord)
@@ -84,8 +85,11 @@ class SimpleEnvironment(object):
         pl.plot([sconfig[0], econfig[0]],
                 [sconfig[1], econfig[1]],
                 'k.-', linewidth=2.5)
-        pl.draw()
 
+        if self.draw_counter % 100 == 0:
+          pl.draw()
+        self.draw_counter = (self.draw_counter + 1)
+        
     def getStatusTable(self):
         return np.full(self.discrete_env.num_cells, False)
 
