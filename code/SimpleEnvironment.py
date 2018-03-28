@@ -48,7 +48,6 @@ class SimpleEnvironment(object):
             [grid_coord - off for off in self.offsets]), axis = 0).astype(np.uint)
 
     def ComputeDistance(self, start_coord, end_coord,):
-
         return np.linalg.norm(self.discrete_env.GridCoordToConfiguration(start_coord) - self.discrete_env.GridCoordToConfiguration(end_coord))    
 
     def ComputeHeuristicCost(self, start_coord, end_coord):
@@ -89,7 +88,7 @@ class SimpleEnvironment(object):
         if self.draw_counter % 100 == 0:
           pl.draw()
         self.draw_counter = (self.draw_counter + 1)
-        
+
     def getStatusTable(self):
         return np.full(self.discrete_env.num_cells, False)
 
