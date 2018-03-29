@@ -21,9 +21,7 @@ class HeuristicRRTPlanner(object):
         if self.visualize and hasattr(self.planning_env, 'InitializePlot'):
             self.planning_env.InitializePlot(goal_config)
 
-
         start_time = time.time() # Start Timer
-
 
         while goalDist > epsilon:
             
@@ -50,7 +48,7 @@ class HeuristicRRTPlanner(object):
             m = 1 - (C_vertex - C_opt) / (tree.get_max_cost() - C_opt)
             p = max(m,0.01)
 
-            print "Cost",C_vertex,"m",m,"p",p
+            # print "Cost",C_vertex,"m",m,"p",p
 
             if uniform(0,1) < p:
                 # EXTEND

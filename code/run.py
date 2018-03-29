@@ -27,7 +27,7 @@ def main(robot, planning_env, planner):
     else:
         goal_config = numpy.array([3.0, 0.0])
 
-    planning_env.SetGoalParameters(goal_config, 0.05)
+    planning_env.SetGoalParameters(goal_config, 0.05) # For RRT
 
     start_time = time.time()
     plan = planner.Plan(start_config, goal_config)
@@ -44,7 +44,7 @@ def main(robot, planning_env, planner):
 
     traj = robot.ConvertPlanToTrajectory(plan)
 
-    # raw_input('Press any key to execute trajectory')
+    raw_input('Press any key to execute trajectory')
     # for p in plan:
     #     planning_env.setDOF(p)
 
@@ -87,16 +87,10 @@ if __name__ == "__main__":
     visualize = args.visualize
     if args.robot == 'herb':
         robot = HerbRobot(env, args.manip)
-        # if args.planner == 'hrrt':
-            # planning_env = RRT_HerbEnvironment(robot)
-        # else:
         planning_env = HerbEnvironment(robot, args.resolution)
         visualize = False
     elif args.robot == 'simple':
         robot = SimpleRobot(env)
-        # if args.planner == 'hrrt':
-            # planning_env = RRT_SimpleEnvironment(robot)
-        # else:
         planning_env = SimpleEnvironment(robot, args.resolution)
     else:
         print 'Unknown robot option: %s' % args.robot

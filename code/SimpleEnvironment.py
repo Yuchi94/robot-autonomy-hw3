@@ -64,7 +64,6 @@ class SimpleEnvironment(object):
         return np.linalg.norm(self.discrete_env.GridCoordToConfiguration(start_coord) - self.discrete_env.GridCoordToConfiguration(end_coord))    
 
 
-
     def InitializePlot(self, goal_config):
         self.fig = pl.figure()
         pl.xlim([self.lower_limits[0], self.upper_limits[0]])
@@ -112,9 +111,8 @@ class SimpleEnvironment(object):
         self.robot.SetTransform(T)
         sleep(0.1)
 
-
-##############################################################
-
+##########################################################################
+### RRT SPECFIC FUNCTIONS ################################################ 
 
     def SetGoalParameters(self, goal_config, p = 0.1):
         self.goal_config = goal_config
