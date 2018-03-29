@@ -31,3 +31,8 @@ class RRTTree(object):
     def AddEdge(self, sid, eid):
         self.edges[eid] = sid
 
+    def getParent(self, eid):
+        try:
+            return self.edges[eid], self.vertices[self.edges[eid]]
+        except KeyError, e:
+            return None, None

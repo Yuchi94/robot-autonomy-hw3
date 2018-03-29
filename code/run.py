@@ -7,6 +7,9 @@ from SimpleRobot import SimpleRobot
 from HerbEnvironment import HerbEnvironment
 from SimpleEnvironment import SimpleEnvironment
 
+from RRT_HerbEnvironment import RRT_HerbEnvironment
+from RRT_SimpleEnvironment import RRT_SimpleEnvironment
+
 from AStarPlanner import AStarPlanner
 from DepthFirstPlanner import DepthFirstPlanner
 from BreadthFirstPlanner import BreadthFirstPlanner
@@ -16,13 +19,15 @@ import numpy as np
 
 def main(robot, planning_env, planner):
 
-    raw_input('Press any key to begin planning')
+    # raw_input('Press any key to begin planning')
 
     start_config = numpy.array(robot.GetCurrentConfiguration())
     if robot.name == 'herb':
         goal_config = numpy.array([ 4.6, -1.76, 0.00, 1.96, -1.15, 0.87, -1.43] )
     else:
         goal_config = numpy.array([3.0, 0.0])
+
+    planning_env.SetGoalParameters(goal_config, 0.05)
 
     start_time = time.time()
     plan = planner.Plan(start_config, goal_config)
@@ -39,7 +44,7 @@ def main(robot, planning_env, planner):
 
     traj = robot.ConvertPlanToTrajectory(plan)
 
-    raw_input('Press any key to execute trajectory')
+    # raw_input('Press any key to execute trajectory')
     # for p in plan:
     #     planning_env.setDOF(p)
 
@@ -82,11 +87,17 @@ if __name__ == "__main__":
     visualize = args.visualize
     if args.robot == 'herb':
         robot = HerbRobot(env, args.manip)
-        planning_env = HerbEnvironment(robot, args.resolution)
+        if args.planner == 'hrrt':
+            planning_env = RRT_HerbEnvironment(robot)
+        else:
+            planning_env = HerbEnvironment(robot, args.resolution)
         visualize = False
     elif args.robot == 'simple':
         robot = SimpleRobot(env)
-        planning_env = SimpleEnvironment(robot, args.resolution)
+        if args.planner == 'hrrt':
+            planning_env = RRT_SimpleEnvironment(robot)
+        else:
+            planning_env = SimpleEnvironment(robot, args.resolution)
     else:
         print 'Unknown robot option: %s' % args.robot
         exit(0)
