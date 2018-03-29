@@ -63,6 +63,8 @@ class SimpleEnvironment(object):
         #Use distance as heuristic?
         return np.linalg.norm(self.discrete_env.GridCoordToConfiguration(start_coord) - self.discrete_env.GridCoordToConfiguration(end_coord))    
 
+
+
     def InitializePlot(self, goal_config):
         self.fig = pl.figure()
         pl.xlim([self.lower_limits[0], self.upper_limits[0]])
@@ -89,31 +91,6 @@ class SimpleEnvironment(object):
         pl.ion()
         pl.show()
 
-    # def InitializePlot(self, goal_config):
-    #     self.fig = pl.figure()
-    #     lower_limits, upper_limits = self.boundary_limits
-    #     pl.xlim([lower_limits[0], upper_limits[0]])
-    #     pl.ylim([lower_limits[1], upper_limits[1]])
-    #     pl.plot(goal_config[0], goal_config[1], 'gx')
-
-    #     # Show all obstacles in environment
-    #     for b in self.robot.GetEnv().GetBodies():
-    #         if b.GetName() == self.robot.GetName():
-    #             continue
-    #         bb = b.ComputeAABB()
-    #         pl.plot([bb.pos()[0] - bb.extents()[0],
-    #                  bb.pos()[0] + bb.extents()[0],
-    #                  bb.pos()[0] + bb.extents()[0],
-    #                  bb.pos()[0] - bb.extents()[0],
-    #                  bb.pos()[0] - bb.extents()[0]],
-    #                 [bb.pos()[1] - bb.extents()[1],
-    #                  bb.pos()[1] - bb.extents()[1],
-    #                  bb.pos()[1] + bb.extents()[1],
-    #                  bb.pos()[1] + bb.extents()[1],
-    #                  bb.pos()[1] - bb.extents()[1]], 'r')
-                              
-    #     pl.ion()
-    #     pl.show()
 
     def PlotEdge(self, sconfig, econfig):
         pl.plot([sconfig[0], econfig[0]],
