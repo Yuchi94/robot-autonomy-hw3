@@ -27,11 +27,11 @@ class RRTTree(object):
         return vid, self.vertices[vid], self.costs[vid]
             
     def get_max_cost(self):
-        if len(self.costs) > 0:
-            return max(self.costs)
-        else:
-            return 0            
-        # return self.max_cost
+        # if len(self.costs) > 0:
+        #     return max(self.costs)
+        # else:
+        #     return 0            
+        return self.max_cost
 
     def AddVertex(self, config, cost):
         vid = len(self.vertices)

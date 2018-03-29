@@ -19,7 +19,7 @@ import numpy as np
 
 def main(robot, planning_env, planner):
 
-    # raw_input('Press any key to begin planning')
+    raw_input('Press any key to begin planning')
 
     start_config = numpy.array(robot.GetCurrentConfiguration())
     if robot.name == 'herb':

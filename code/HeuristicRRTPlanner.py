@@ -31,12 +31,24 @@ class HeuristicRRTPlanner(object):
             new_config = self.planning_env.GenerateRandomConfiguration_GoalBias()
             closest_id, closest_config, closest_cost = tree.GetNearestVertex(new_config)
                 
-            C_vertex = closest_cost + self.planning_env.ComputeDistance_RRT(closest_config, new_config) + \ # PATH COST
-                self.planning_env.ComputeDistance_RRT(new_config, goal_config) # HEURISTIC
+            HEURISTIC = self.planning_env.ComputeDistance_RRT(new_config, goal_config)
+            
+            # PATH_COST = self.planning_env.ComputeDistance_RRT(closest_config, new_config)
+            
+            PATH_COST = 0
+            child_config = new_config
+            parent_id = closest_id 
+            parent_config = closest_config
+            while parent_id is not None: 
+                PATH_COST = PATH_COST + self.planning_env.ComputeDistance_RRT(parent_config, child_config)
+                child_id = parent_id
+                child_config = parent_config
+                parent_id, parent_config = tree.getParent(child_id)
+
+            C_vertex = HEURISTIC + PATH_COST
 
             m = 1 - (C_vertex - C_opt) / (tree.get_max_cost() - C_opt)
-            m = C_vertex/tree.get_max_cost()
-            p = max(m,0.1)
+            p = max(m,0.01)
 
             print "Cost",C_vertex,"m",m,"p",p
 
@@ -53,7 +65,7 @@ class HeuristicRRTPlanner(object):
                     closest_goal_id, closest_goal_config, closest_goal_cost = tree.GetNearestVertex(goal_config)
                     goalDist = self.planning_env.ComputeDistance_RRT(closest_goal_config, goal_config)
 
-                    raw_input('...')
+                    # raw_input('...')
 
         goal_id = tree.AddVertex(goal_config, 0)
         tree.AddEdge(closest_goal_id, goal_id)
