@@ -87,17 +87,17 @@ if __name__ == "__main__":
     visualize = args.visualize
     if args.robot == 'herb':
         robot = HerbRobot(env, args.manip)
-        if args.planner == 'hrrt':
-            planning_env = RRT_HerbEnvironment(robot)
-        else:
-            planning_env = HerbEnvironment(robot, args.resolution)
+        # if args.planner == 'hrrt':
+            # planning_env = RRT_HerbEnvironment(robot)
+        # else:
+        planning_env = HerbEnvironment(robot, args.resolution)
         visualize = False
     elif args.robot == 'simple':
         robot = SimpleRobot(env)
-        if args.planner == 'hrrt':
-            planning_env = RRT_SimpleEnvironment(robot)
-        else:
-            planning_env = SimpleEnvironment(robot, args.resolution)
+        # if args.planner == 'hrrt':
+            # planning_env = RRT_SimpleEnvironment(robot)
+        # else:
+        planning_env = SimpleEnvironment(robot, args.resolution)
     else:
         print 'Unknown robot option: %s' % args.robot
         exit(0)

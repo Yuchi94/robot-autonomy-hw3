@@ -20,12 +20,12 @@ class HeuristicRRTPlanner(object):
         #  of dimension k x n where k is the number of waypoints
         #  and n is the dimension of the robots configuration space
         
-        heappush(h, (1 + self.planning_env.ComputeHeuristicCost(n, goal_coord), 
-            1, next(tb), n)) # Total cost, current cost, tiebreaker num, coord
+        # heappush(h, (1 + self.planning_env.ComputeHeuristicCost(n, goal_coord), 
+        #     1, next(tb), n)) # Total cost, current cost, tiebreaker num, coord
 
-        heappush(h, (node[1] + self.planning_env.ComputeDistance(node[3], n) 
-            + self.planning_env.ComputeHeuristicCost(n, goal_coord), 
-            node[1] + self.planning_env.ComputeDistance(node[3], n), next(tb), n))
+        # heappush(h, (node[1] + self.planning_env.ComputeDistance_RRT(node[3], n) 
+        #     + self.planning_env.ComputeHeuristicCost(n, goal_coord), 
+        #     node[1] + self.planning_env.ComputeDistance(node[3], n), next(tb), n))
 
         #  Implementation of the rrt planner
         #  The return path should be an array
@@ -34,7 +34,7 @@ class HeuristicRRTPlanner(object):
 
         start_time = time.time() # Start Timer
 
-        goalDist = self.planning_env.ComputeDistance(start_config, goal_config)
+        goalDist = self.planning_env.ComputeDistance_RRT(start_config, goal_config)
         while goalDist > epsilon:
             
             # SELECT NODE
@@ -48,10 +48,10 @@ class HeuristicRRTPlanner(object):
 
                 new_id = tree.AddVertex(new_config)
                 tree.AddEdge(closest_id, new_id)
-                self.planning_env.PlotEdge(new_config, closest_config) # PLOT
+                self.planning_env.PlotEdge_RRT(new_config, closest_config) # PLOT
 
                 closest_goal_id, closest_goal_config = tree.GetNearestVertex(goal_config)
-                goalDist = self.planning_env.ComputeDistance(closest_goal_config, goal_config)
+                goalDist = self.planning_env.ComputeDistance_RRT(closest_goal_config, goal_config)
                 # print goalDist
 
         goal_id = tree.AddVertex(goal_config)
