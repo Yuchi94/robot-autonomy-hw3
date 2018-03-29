@@ -23,13 +23,14 @@ class AStarPlanner(object):
 
         h = [] #Use a heap
         parents = {}
-        parents[tuple(start_coord)] = None
+        parents[tuple(start_coord)] = (None, 0)
+        curr_cost = {}
         tb = count()
 
         for n in neighbors:
             heappush(h, (1 + self.planning_env.ComputeHeuristicCost(n, goal_coord), 
                         1, next(tb), n)) #Total cost, current cost, tiebreaker num, coord
-            parents[tuple(n)] = start_coord
+            parents[tuple(n)] = (start_coord, 1)
 
         while True:
             #pop min element from heap
@@ -46,6 +47,15 @@ class AStarPlanner(object):
                 #Explored
                 if tuple(n) in parents:
                     continue
+                    if parents[tuple(n)][1] <= node[1] + self.planning_env.ComputeDistance(node[3], n):
+                        continue
+                    else:
+                        for H in h:
+                            if (H[3] == n).all():
+                                h.remove(H)
+                                break
+                        heapify(h)
+
 
                 #Collision
                 if self.planning_env.checkCollision(n):
@@ -58,14 +68,14 @@ class AStarPlanner(object):
 
                 #Reached the end
                 if (n == goal_coord).all():
-                    parents[tuple(n)] = node[3]
+                    parents[tuple(n)] = (node[3], node[1] + self.planning_env.ComputeDistance(node[3], n))
                     return self.createPath(start_config, goal_config, parents, n)
                 
                 #Add parents
                 heappush(h, (node[1] + self.planning_env.ComputeDistance(node[3], n) 
                     + self.planning_env.ComputeHeuristicCost(n, goal_coord), 
                     node[1] + self.planning_env.ComputeDistance(node[3], n), next(tb), n))
-                parents[tuple(n)] = node[3]
+                parents[tuple(n)] = (node[3], node[1] + self.planning_env.ComputeDistance(node[3], n))
         
         print("Should never reach here")
 
@@ -77,7 +87,7 @@ class AStarPlanner(object):
 
         while True:
             path.append(self.planning_env.discrete_env.GridCoordToConfiguration(coord))
-            coord = parents[tuple(coord)]
+            coord = parents[tuple(coord)][0]
             if coord is None:
                 break
 

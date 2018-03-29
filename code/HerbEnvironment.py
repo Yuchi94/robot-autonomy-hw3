@@ -10,6 +10,8 @@ class HerbEnvironment(object):
         
         self.robot = herb.robot
         self.lower_limits, self.upper_limits = self.robot.GetActiveDOFLimits()
+        print(self.lower_limits)
+        print(self.upper_limits)
         self.discrete_env = DiscreteEnvironment(resolution, self.lower_limits, self.upper_limits)
 
         # account for the fact that snapping to the middle of the grid cell may put us over our
@@ -49,10 +51,12 @@ class HerbEnvironment(object):
         limits = self.robot.GetActiveDOFLimits()
         config = self.discrete_env.GridCoordToConfiguration(coord)
         env = self.robot.GetEnv()
+        if (self.lower_limits > config).any() or (self.upper_limits < config).any():
+            return True
 
         with robot_saver, env:
             self.robot.SetActiveDOFValues(config.squeeze().tolist())
-            return env.CheckCollision(self.robot) or (limits[0] > config).any() or (limits[1] < config).any()
+            return env.CheckCollision(self.robot)
 
     def GetSuccessors(self, grid_coord):
         """
